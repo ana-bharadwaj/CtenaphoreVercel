@@ -1,0 +1,132 @@
+.app {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+.container {
+  width: min(1100px, 96vw);
+}
+.header {
+  margin-bottom: 12px;
+}
+.title {
+  font-weight: 700;
+  text-align: center;
+}
+
+.pairRow {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 40px;
+}
+@media (max-width: 900px) {
+  .pairRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(
+    45deg,
+    #f3f3f3,
+    #f3f3f3 10px,
+    #e1e1e1 10px,
+    #e1e1e1 20px
+  );
+  border: 2px dashed #bbb;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #555;
+  text-align: center;
+}
+.leftPlaceholder {
+  display: flex;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  font-size: 18px;
+}
+.smallPlaceholder {
+  width: 160px;
+  height: 120px;
+  font-size: 14px;
+}
+.placeholder.submitted,
+.leftPlaceholder.submitted {
+  border-color: #2f9e44;
+  background-color: #d3f9d8;
+}
+
+.caption {
+  margin-top: 6px;
+  text-align: center;
+  color: #333;
+}
+
+.rightPane {
+  border: 1px dashed #ddd;
+  border-radius: 10px;
+  padding: 12px;
+}
+.legend {
+  font-size: 15px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.choicesCol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.choiceCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.choiceCard:hover {
+  border-color: #ccc;
+}
+.choiceCard.selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+.choiceCard.isSubmitted {
+  border-color: #2f9e44;
+  box-shadow: 0 0 0 3px #b2f2bb;
+}
+
+.actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+}
+
+.submitBtn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.submitBtn:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+.status {
+  color: #2b8a3e;
+}

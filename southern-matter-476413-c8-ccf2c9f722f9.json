@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "southern-matter-476413-c8",
+  "private_key_id": "ccf2c9f722f9cd1ddc73c385899e81849c48c2b7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCwBMjmV1+3bN+z\nu4AX+yzSqAmJSuibmuATBEpztJeYXWpI+pHPVYagNLoV7/+olNT/L+5NStDnCqMe\nP7fzz0qk3dLO/g2xaR6vwAIraa1l9Gulzy5OlMGIv/k9dZm8DPh6Fx1QzGFzprzy\nbBkOdcYO77E+TF3OA12mBDaUKhkfvW1PrwIEIp7neVaOrO8VvvTOKQFO9YEUHK2Z\nrwqsGP4OqFM+xqMgK2FNecQDwSPZ4zO/F1H2nAKYSwbnR7MH5STzgBZnTbuotdWj\nuT0rTfrOTTCmBMrXaMbrI3kZNj3GWXmbZapI44T+/tEDh856St/BmxnS42G8uF+1\n1Pd8wYqBAgMBAAECggEAORv8UNv1ds5w0GBcAavhkaGqomx3BxGbdSAVxe/Ipctd\nUjtWNraRnQYugDKjuP89EmTrRRGqsOO/I+/Zj9XoapB8NuOv7qlkJvK94XcCpwtE\nKAKODDnwhx1+UQYIcL6mmfpI7S+6yKrHMEKJaKsmrS7wy308jDyEVHqWeMEl8Klb\n+qvhCn7AlQ/qJQP9f8Z1t5dlVu9Sir4zrnFv4MGq+GWJ4lnsD7Kw9QswFnw32Drz\nQ1Z16+462qLqIRfQDYD0J8oAu5qy7SRSf3FI8qybrofy2WNsbpO+mWCRGbRMEwzF\nXTiVnWyU8HqaqoYWCYLstXFNBPvz+s7n0gWvu0hcFwKBgQDYEPai9UNB03TwERjo\n2nsIv4mPRtX0cTUXInsoaa4pYNTCG5A8C5WT+ykWh4x9cvIg9IRI4bYOUstOC1rT\nf5JIvtJUnw4Z36EK6oLeS+NKZYzZe6vRWAVH2/ACP7cdB8i/+YMR7qZB5v7UKosX\nWDNL08vB7/hT7WC1IcAwzPvF6wKBgQDQjP8Cj5H9y2U/t+z0CWkeMdMgHJH6bEXb\ndKq9MZwX42PA6Uf8vanhxITtWJ0NQu2i4CDTlfiQTcjpmb1EgNQ9Yo2Rv+yT5mHU\nlKCSUU8UFO/50d9nHc6e8b0UvLe1tC7mYgjk+7WiPY/4pPGbt9/3FMNppzP6Imda\nJN31JzC6QwKBgHZ6rtPjC9NvwaLWrUMacvb0GNlhLXeSEFu0Q7aAZMk52NDrzmau\nr4Hq6rf48jfkLROXIWbZpjwqeGM+ZLqvLKcJREq0wUW81BEpUUPWdzdXginL4Aa2\nbobd+rkw+RdJKnLivlW5+J8QrNHo1kahzdcZt5SMIy7abvpEHKBl9vWrAoGBAKa7\n0zWM6z9pWe1zcvI4g94sH4tQzDTWU5N81vSjsRQ4LAyTdYZPbH6fy1amvglYNP0/\nC3+eKzfTuIlq7LLT/NuG64BXXSFx001N9oKElyCLDMFCVcXvQr44rt7hck7HW6e9\nQTcxNqobZft4g+HnRBwacZEKqLeWweKEDyBs0LxZAoGAPqRoqfUKE3WDv4A2OR67\nSh/WbbtNt8bxT2G7rwEbSskJNPqjlNGkHlwkaCWzI3lZz+mUNwvpEC3V678iXeLh\nsRq99fIw9MxDOxrOGkOrTYPhM+zsIlHQYOKf0k1q/65GS6hxhxyloDEQmU3ZKTNZ\nSYFpIuogrkQ5DLWbbcQErvE=\n-----END PRIVATE KEY-----\n",
+  "client_email": "ctenopool@southern-matter-476413-c8.iam.gserviceaccount.com",
+  "client_id": "114736557622431288044",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/ctenopool%40southern-matter-476413-c8.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
