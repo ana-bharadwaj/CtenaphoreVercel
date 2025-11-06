@@ -76,7 +76,7 @@ export default function SingleImagePoolingPage() {
 
     setLoading(true);
 
-    fetch("http://127.0.0.1:5000/api/submit-label", {
+    fetch("http://127.0.0.1:5000/api/submit-single-label", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -104,120 +104,79 @@ export default function SingleImagePoolingPage() {
   };
 
   return (
-    <div className="app">
+  <div className="app">
+    <header className="header">
       {!user ? (
-        <div className="loginScreen">
-          <button onClick={signIn}>Sign in with Google</button>
-        </div>
+        <button onClick={signIn}>Sign in with Google</button>
       ) : (
-        <div>
-          <header className="header">
-            <h1 className="title">Image Categorizer</h1>
-            <div>
-              <span>Signed in as {user.email}</span>{" "}
-              <button onClick={signOutUser}>Sign Out</button>
-            </div>
-          </header>
-
-          {loading && <div className="loading">Loading images...</div>}
-
-          <div className="container">
-            {cards.map((card, idx) => (
-              <section key={card.id} className="pairRow">
-                <div className="leftPane">
-                  <div
-                    className={`placeholder leftPlaceholder ${
-                      card.submitted ? "submitted" : ""
-                    }`}
-                  >
-                    {mainImage &&
-                    mainImage.displayUrl &&
-                    !loading ? (
-                      <img
-                        src={mainImage.displayUrl}
-                        alt="Main"
-                        style={{
-                          width: "100%",
-                          height: "auto",
-                          maxHeight: "400px",
-                          objectFit: "contain",
-                          display: "block",
-                        }}
-                      />
-                    ) : (
-                      <span>Loading image {card.id}...</span>
-                    )}
-                  </div>
-                  <p className="caption">Classify this image</p>
-                </div>
-
-                <div className="rightPane">
-                  <h3 className="legend">
-                    Pick a class (click or double-click to submit)
-                  </h3>
-
-                  <div className="choicesCol">
-                    {options.map((opt) => {
-                      const selected = card.choice === opt;
-                      const submitted = card.submitted && selected;
-                      const infoForThisClass = choiceImages[opt];
-
-                      return (
-                        <div
-                          key={opt}
-                          className={`choiceCard ${
-                            selected ? "selected" : ""
-                          } ${submitted ? "isSubmitted" : ""}`}
-                          onClick={() => updateCard(idx, { choice: opt })}
-                          onDoubleClick={() => submitCard(idx, opt)}
-                        >
-                          <div className="placeholder smallPlaceholder">
-                            {infoForThisClass &&
-                            infoForThisClass.displayUrl &&
-                            !loading ? (
-                              <img
-                                src={infoForThisClass.displayUrl}
-                                alt={opt}
-                                style={{
-                                  width: "100%",
-                                  height: "auto",
-                                  maxHeight: "140px",
-                                  objectFit: "contain",
-                                  display: "block",
-                                }}
-                              />
-                            ) : (
-                              <span>{opt}</span>
-                            )}
-                          </div>
-
-                          <p className="caption">{opt}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="actions">
-                    <button
-                      className="submitBtn"
-                      disabled={!card.choice || loading}
-                      onClick={() => submitCard(idx, card.choice)}
-                    >
-                      Submit
-                    </button>
-
-                    {card.submitted && (
-                      <span className="status">
-                        Submitted: <b>{card.choice}</b>
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </section>
-            ))}
-          </div>
-        </div>
+        <>
+          <span>Signed in as {user.email}</span>
+          <button onClick={signOutUser}>Sign Out</button>
+        </>
       )}
+    </header>
+    <div className="centerContent">
+      <h1 className="title" style={{ marginBottom: 24, fontWeight: 550, textAlign: 'center' }}>Image Categorizer</h1>
+      <div className="container">
+        {cards.map((card, idx) => (
+          <section key={card.id} className="pairRow">
+            <div className="leftPane">
+              <div className={`placeholder leftPlaceholder ${card.submitted ? "submitted" : ""}`}>
+                {mainImage?.displayUrl && !loading ? (
+                  <img
+                    src={mainImage.displayUrl}
+                    alt="Main"
+                  />
+                ) : (
+                  <span>Loading image {card.id}...</span>
+                )}
+              </div>
+            </div>
+            <div className="rightPane">
+              <h3 className="legend">Which class does the above image belong to?</h3>
+              <div className="choicesCol">
+                {options.map((opt) => {
+                  const selected = card.choice === opt;
+                  const submitted = card.submitted && selected;
+                  const infoForThisClass = choiceImages[opt];
+                  return (
+                    <div
+                      key={opt}
+                      className={`choiceCard ${selected ? "selected" : ""} ${submitted ? "isSubmitted" : ""}`}
+                      onClick={() => updateCard(idx, { choice: opt })}
+                      onDoubleClick={() => submitCard(idx, opt)}
+                    >
+                      <div className="placeholder smallPlaceholder">
+                        {infoForThisClass?.displayUrl && !loading ? (
+                          <img src={infoForThisClass.displayUrl} alt={opt} />
+                        ) : (
+                          <span>{opt}</span>
+                        )}
+                      </div>
+                      <p className="caption">{opt}</p>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="actions">
+                <button
+                  className="submitBtn"
+                  disabled={!card.choice || loading}
+                  onClick={() => submitCard(idx, card.choice)}
+                >
+                  Submit
+                </button>
+                {card.submitted && (
+                  <span className="status">
+                    Submitted: <b>{card.choice}</b>
+                  </span>
+                )}
+              </div>
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
-  );
+  </div>
+);
 }

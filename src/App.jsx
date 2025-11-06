@@ -7,7 +7,6 @@ export default function App() {
   return (
     <Router>
       <header>
-        <h1>Image Classification App</h1>
         <nav>
           <Link to="/" style={{ margin: "0 10px" }}>Single Pooling</Link>
           <Link to="/pair" style={{ margin: "0 10px" }}>Two-Image Pair</Link>

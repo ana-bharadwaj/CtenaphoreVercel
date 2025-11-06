@@ -77,24 +77,36 @@ def image_set():
 
     return jsonify({"mainImage": main_image_obj, "choices": cleaned_choices})
 
+
 @app.route("/api/two-image-pair")
 def two_image_pair():
-    chosen_class = random.choice(FOLDER_NAMES)
-    imgs = list_images(chosen_class)
-    if len(imgs) < 2:
-        return jsonify({"error": "Not enough images in chosen class"}), 400
+    # Your selection logic here. Example:
+    is_same = random.choice([True, False])
 
-    selected = random.sample(imgs, 2)
+    if is_same:
+        chosen_class = random.choice(FOLDER_NAMES)
+        imgs = list_images(chosen_class)
+        selected = random.sample(imgs, 2)
+        classes = [chosen_class, chosen_class]
+    else:
+        class1, class2 = random.sample(FOLDER_NAMES, 2)
+        imgs1 = list_images(class1)
+        imgs2 = list_images(class2)
+        selected = [random.choice(imgs1), random.choice(imgs2)]
+        classes = [class1, class2]
+
     imgs_info = [{"blobPath": b, "displayUrl": get_signed_url(b)} for b in selected]
-
-    options = [f.replace("-tif", "") for f in FOLDER_NAMES]
-    clean_class_key = chosen_class.replace("-tif", "")
+    options = ["Same class", "Different class"]  # <<< ONLY THESE
 
     return jsonify({
         "images": imgs_info,
         "options": options,
-        "correctClass": clean_class_key
+        "groundTruth": "Same class" if is_same else "Different class",
+        "trueClasses": [c.replace("-tif", "") for c in classes]
     })
+
+
+
 
 @app.route("/api/submit-single-label", methods=["POST", "OPTIONS"])
 def submit_single_label():
@@ -108,17 +120,21 @@ def submit_single_label():
     data = request.json or {}
 
     username = data.get("username", "anonymous")
+
+    # IMPORTANT: we now expect the CLEAN PATH
+    # not the signed URL
     main_image_blob = data.get("mainImageBlob")
     picked_class = data.get("choice")
 
-    if not picked_class or not main_image_blob:
+    if not main_image_blob or not picked_class:
         return jsonify({"status": "error", "message": "missing fields"}), 400
 
-    db.collection("responses_single").add({
+    # store the stable blob path in Firestore
+    db.collection("responses").add({
         "username": username,
-        "main_image_blob": main_image_blob,
+        "main_image_blob": main_image_blob,  # this will look like "202502-1-tif/20250228-E-1-PA-2.png"
         "selected_class": picked_class,
-        "timestamp": firestore.SERVER_TIMESTAMP,
+        "timestamp": firestore.SERVER_TIMESTAMP
     })
 
     response = jsonify({"status": "success"})
@@ -138,21 +154,26 @@ def submit_pair_label():
 
     username = data.get("username", "anonymous")
     image_paths = data.get("imagePaths")
-    picked_class = data.get("choice")
+    picked_option = data.get("choice")
+    ground_truth = data.get("groundTruth")
+    true_classes = data.get("trueClasses")
 
-    if not picked_class or not image_paths or len(image_paths) != 2:
+    if not picked_option or not image_paths or len(image_paths) != 2:
         return jsonify({"status": "error", "message": "missing or invalid fields"}), 400
 
     db.collection("responses_pair").add({
         "username": username,
         "image_paths": image_paths,
-        "selected_class": picked_class,
+        "selected_option": picked_option,
+        "ground_truth": ground_truth,
+        "true_classes": true_classes,
         "timestamp": firestore.SERVER_TIMESTAMP,
     })
 
     response = jsonify({"status": "success"})
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)
