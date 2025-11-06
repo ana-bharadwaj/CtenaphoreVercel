@@ -22,8 +22,9 @@ BUCKET_NAME = "ctenopool"
 FOLDER_NAMES = ["202502-1-tif", "202502-2-tif", "202502-3-tif", "202502-4-tif"]
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 
-os.environ.get["GOOGLE_APPLICATION_CREDENTIALS"]
-cred = credentials.Certificate(os.environ.get["GOOGLE_APPLICATION_CREDENTIALS"])
+cred_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS")
+cred_dict = json.loads(cred_json)
+cred = credentials.Certificate(cred_dict)
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
