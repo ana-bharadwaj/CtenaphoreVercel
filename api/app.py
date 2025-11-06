@@ -7,21 +7,33 @@ import random
 import os
 import threading
 import time
+import json
 
 app = Flask(__name__)
+# tighten CORS to your frontend domain later (for now keep *)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 BUCKET_NAME = "ctenopool"
 FOLDER_NAMES = ["202502-1-tif", "202502-2-tif", "202502-3-tif", "202502-4-tif"]
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r"C:\Users\anabh\Code and Projects\poolingdemo\ctenopool-firebase-adminsdk-fbsvc-b6894c1076.json"
-cred = credentials.Certificate(os.environ["GOOGLE_APPLICATION_CREDENTIALS"])
-firebase_admin.initialize_app(cred)
+# ----- Service account via ENV (no file paths on Vercel!) -----
+SA_JSON = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+
+if not firebase_admin._apps:
+    if SA_JSON:
+        cred_info = json.loads(SA_JSON)
+        cred = credentials.Certificate(cred_info)
+        firebase_admin.initialize_app(cred)
+        storage_client = storage.Client.from_service_account_info(cred_info)
+    else:
+        # If you attach a GCP identity via workload identity later
+        firebase_admin.initialize_app()
+        storage_client = storage.Client()
 
 db = firestore.client()
-storage_client = storage.Client()
 
+# simple in-memory cache (OK for serverless instance lifetime)
 cache_lock = threading.Lock()
 cached_files = {}
 last_cache_time = 0
@@ -48,6 +60,7 @@ def list_images(folder):
 def get_signed_url(blob_name):
     bucket = storage_client.bucket(BUCKET_NAME)
     blob = bucket.blob(blob_name)
+    # 10 minutes
     return blob.generate_signed_url(version="v4", expiration=600, method="GET")
 
 @app.route("/api/image-set")
@@ -68,19 +81,13 @@ def image_set():
     main_image_obj = None
     if all_imgs:
         main_blob = random.choice(all_imgs)
-        main_image_obj = {
-            "blobPath": main_blob,
-            "displayUrl": get_signed_url(main_blob)
-        }
+        main_image_obj = {"blobPath": main_blob, "displayUrl": get_signed_url(main_blob)}
 
     cleaned_choices = {f.replace("-tif", ""): obj for f, obj in class_samples.items()}
-
     return jsonify({"mainImage": main_image_obj, "choices": cleaned_choices})
-
 
 @app.route("/api/two-image-pair")
 def two_image_pair():
-    # Your selection logic here. Example:
     is_same = random.choice([True, False])
 
     if is_same:
@@ -96,7 +103,7 @@ def two_image_pair():
         classes = [class1, class2]
 
     imgs_info = [{"blobPath": b, "displayUrl": get_signed_url(b)} for b in selected]
-    options = ["Same class", "Different class"]  # <<< ONLY THESE
+    options = ["Same class", "Different class"]
 
     return jsonify({
         "images": imgs_info,
@@ -104,9 +111,6 @@ def two_image_pair():
         "groundTruth": "Same class" if is_same else "Different class",
         "trueClasses": [c.replace("-tif", "") for c in classes]
     })
-
-
-
 
 @app.route("/api/submit-single-label", methods=["POST", "OPTIONS"])
 def submit_single_label():
@@ -118,21 +122,16 @@ def submit_single_label():
         return response, 200
 
     data = request.json or {}
-
     username = data.get("username", "anonymous")
-
-    # IMPORTANT: we now expect the CLEAN PATH
-    # not the signed URL
     main_image_blob = data.get("mainImageBlob")
     picked_class = data.get("choice")
 
     if not main_image_blob or not picked_class:
         return jsonify({"status": "error", "message": "missing fields"}), 400
 
-    # store the stable blob path in Firestore
     db.collection("responses").add({
         "username": username,
-        "main_image_blob": main_image_blob,  # this will look like "202502-1-tif/20250228-E-1-PA-2.png"
+        "main_image_blob": main_image_blob,
         "selected_class": picked_class,
         "timestamp": firestore.SERVER_TIMESTAMP
     })
@@ -151,7 +150,6 @@ def submit_pair_label():
         return response, 200
 
     data = request.json or {}
-
     username = data.get("username", "anonymous")
     image_paths = data.get("imagePaths")
     picked_option = data.get("choice")
@@ -174,6 +172,5 @@ def submit_pair_label():
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
 
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# Do NOT call app.run() on Vercel
+# Vercel imports `app` from this file for the serverless function

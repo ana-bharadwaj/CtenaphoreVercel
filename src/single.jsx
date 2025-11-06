@@ -14,7 +14,7 @@ export default function SingleImagePoolingPage() {
 
   const fetchImages = useCallback(() => {
     setLoading(true);
-    fetch("http://127.0.0.1:5000/api/image-set")
+    fetch("/api/image-set")
       .then((res) => res.json())
       .then((data) => {
         setMainImage(data.mainImage || null);
@@ -76,7 +76,7 @@ export default function SingleImagePoolingPage() {
 
     setLoading(true);
 
-    fetch("http://127.0.0.1:5000/api/submit-single-label", {
+    fetch("/api/submit-single-label", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

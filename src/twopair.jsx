@@ -16,7 +16,7 @@ export default function TwoImagePairPage() {
 
   const fetchPairs = () => {
     setLoading(true);
-    fetch("http://127.0.0.1:5000/api/two-image-pair")
+    fetch("/api/two-image-pair")
       .then((res) => res.json())
       .then((data) => {
         setImages(data.images || []);
