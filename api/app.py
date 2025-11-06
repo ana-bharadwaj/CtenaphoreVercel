@@ -18,22 +18,17 @@ FOLDER_NAMES = ["202502-1-tif", "202502-2-tif", "202502-3-tif", "202502-4-tif"]
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 
 # ----- Service account via ENV (no file paths on Vercel!) -----
-SA_JSON = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+BUCKET_NAME = "ctenopool"
+FOLDER_NAMES = ["202502-1-tif", "202502-2-tif", "202502-3-tif", "202502-4-tif"]
+IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 
-if not firebase_admin._apps:
-    if SA_JSON:
-        cred_info = json.loads(SA_JSON)
-        cred = credentials.Certificate(cred_info)
-        firebase_admin.initialize_app(cred)
-        storage_client = storage.Client.from_service_account_info(cred_info)
-    else:
-        # If you attach a GCP identity via workload identity later
-        firebase_admin.initialize_app()
-        storage_client = storage.Client()
+os.environ.get["GOOGLE_APPLICATION_CREDENTIALS"]
+cred = credentials.Certificate(os.environ.get["GOOGLE_APPLICATION_CREDENTIALS"])
+firebase_admin.initialize_app(cred)
 
 db = firestore.client()
+storage_client = storage.Client()
 
-# simple in-memory cache (OK for serverless instance lifetime)
 cache_lock = threading.Lock()
 cached_files = {}
 last_cache_time = 0
