@@ -1,0 +1,8 @@
+Flask
+flask-cors
+google-cloud-storage
+google-cloud-firestore
+firebase-admin
+Pillow
+google-api-core
+gunicorn

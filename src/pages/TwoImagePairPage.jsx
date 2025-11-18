@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../auth/AuthProvider";
 
-const API_BASE = import.meta?.env?.VITE_API_BASE || "http://127.0.0.1:5000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:5000";
 
 export default function TwoImagePairPage() {
   const { user } = useAuth();

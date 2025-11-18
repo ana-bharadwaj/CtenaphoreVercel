@@ -1,3 +1,4 @@
+import json
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from google.cloud import storage
@@ -78,14 +79,33 @@ BUCKET_NAME = "ctenopool"
 FOLDER_NAMES = ["202502-1-tif", "202502-2-tif", "202502-3-tif", "202502-4-tif"]
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".tif", ".tiff")
 
-# ---- Credentials ----
-DEFAULT_CREDS = r"C:\Users\anabh\Code and Projects\CtenaphoreClassification\ctenopool-firebase-adminsdk-fbsvc-fbf85008c1.json"
-os.environ.setdefault("GOOGLE_APPLICATION_CREDENTIALS", os.getenv("GOOGLE_APPLICATION_CREDENTIALS", DEFAULT_CREDS))
+# Local path to your service account JSON (for dev on your laptop)
+LOCAL_CREDS_PATH = r"C:\Users\anabh\Code and Projects\CtenaphoreClassification\ctenopool-firebase-adminsdk-fbsvc-fbf85008c1.json"
 
-cred = credentials.Certificate(os.environ["GOOGLE_APPLICATION_CREDENTIALS"])
+# Try to read JSON creds from environment (for Render)
+creds_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+
+if creds_json:
+    # ---- Production (Render) ----
+    sa_info = json.loads(creds_json)
+    temp_path = "/tmp/gcp-creds.json"
+    with open(temp_path, "w") as f:
+        json.dump(sa_info, f)
+
+    cred_path = temp_path
+else:
+    # ---- Local dev ----
+    cred_path = LOCAL_CREDS_PATH
+
+# Make sure GOOGLE_APPLICATION_CREDENTIALS points to the file
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = cred_path
+
+# Init Firebase & Firestore
+cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred)
-
 db = firestore.client()
+
+# Storage client will pick up the same creds from env
 storage_client = storage.Client()
 
 # ---- Caches ----
