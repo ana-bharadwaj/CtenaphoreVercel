@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import "../App.css";
 
-const API_BASE = import.meta?.env?.VITE_API_BASE || "http://127.0.0.1:5000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:5000";
 
 export default function SingleImagePoolingPage() {
   const CLASS_OPTIONS = ["202502-1", "202502-2", "202502-3", "202502-4"];
