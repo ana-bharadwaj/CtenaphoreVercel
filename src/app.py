@@ -47,7 +47,13 @@ def ensure_thumb_and_get_url(original_blob_name: str) -> str:
             im = Image.open(io.BytesIO(data)).convert("RGB")
             im.thumbnail((THUMB_MAX, THUMB_MAX), Image.LANCZOS)
             out = io.BytesIO()
-            im.save(out, format="JPEG", quality=THUMB_QUALITY, optimize=True, progressive=True)
+            im.save(
+                out,
+                format="JPEG",
+                quality=THUMB_QUALITY,
+                optimize=True,
+                progressive=True
+            )
             out.seek(0)
 
             thumb_blob.upload_from_file(out, content_type="image/jpeg")
@@ -127,7 +133,10 @@ def refresh_cache():
             new_cache = {}
             for folder in FOLDER_NAMES:
                 blobs = storage_client.list_blobs(BUCKET_NAME, prefix=folder + "/")
-                imgs = [b.name for b in blobs if b.name.lower().endswith(IMAGE_EXTENSIONS)]
+                imgs = [
+                    b.name for b in blobs
+                    if b.name.lower().endswith(IMAGE_EXTENSIONS)
+                ]
                 new_cache[folder] = imgs
             cached_files = new_cache
             last_cache_time = now
@@ -147,7 +156,11 @@ def get_signed_url_cached(blob_name):
 
         bucket = storage_client.bucket(BUCKET_NAME)
         blob = bucket.blob(blob_name)
-        new_url = blob.generate_signed_url(version="v4", expiration=SIGNED_TTL, method="GET")
+        new_url = blob.generate_signed_url(
+            version="v4",
+            expiration=SIGNED_TTL,
+            method="GET"
+        )
         signed_cache[blob_name] = (new_url, now + SIGNED_TTL)
         return new_url
 
@@ -157,10 +170,16 @@ def health():
 
 # --- Global per-class choices for single pooling ---
 fixed_choices_lock = threading.Lock()
-fixed_class_samples = {}  # { folder: {blobPath, displayUrl} }
+# store only blobPath per folder; URLs are generated fresh each request
+fixed_class_samples = {}  # { folder: blobPath }
 
 def get_or_init_fixed_choices():
-    """Initialize once, and return globally-fixed class choices."""
+    """
+    Initialize once, and return globally-fixed class choices.
+
+    We keep only the blobPath here so we can generate fresh signed URLs
+    (thumbnails) on each /api/image-set request. This avoids expired URLs.
+    """
     global fixed_class_samples
     with fixed_choices_lock:
         if fixed_class_samples:
@@ -170,10 +189,7 @@ def get_or_init_fixed_choices():
             imgs = list_images(folder)
             if imgs:
                 choice_blob = random.choice(imgs)
-                fixed_class_samples[folder] = {
-                    "blobPath": choice_blob,
-                    "displayUrl": get_signed_url_cached(choice_blob)
-                }
+                fixed_class_samples[folder] = choice_blob
         return fixed_class_samples
 
 @app.route("/api/image-set")
@@ -184,6 +200,7 @@ def image_set():
     for folder in FOLDER_NAMES:
         imgs = list_images(folder)
         all_imgs.extend(imgs)
+
     main_image_obj = None
     if all_imgs:
         main_blob = random.choice(all_imgs)
@@ -191,8 +208,16 @@ def image_set():
             "blobPath": main_blob,
             "displayUrl": ensure_thumb_and_get_url(main_blob)
         }
-    # Clean labels: "202502-1-tif" -> "202502-1"
-    cleaned_choices = {f.replace("-tif", ""): obj for f, obj in fixed_class_samples_local.items()}
+
+    # Build choices with fresh signed thumbnail URLs
+    cleaned_choices = {}
+    for folder, blob_path in fixed_class_samples_local.items():
+        label = folder.replace("-tif", "")
+        cleaned_choices[label] = {
+            "blobPath": blob_path,
+            "displayUrl": ensure_thumb_and_get_url(blob_path)
+        }
+
     return jsonify({"mainImage": main_image_obj, "choices": cleaned_choices})
 
 @app.route("/api/two-image-pair")
@@ -211,7 +236,12 @@ def two_image_pair():
 
     if is_same:
         if not viable:
-            return jsonify({"images": [], "options": [], "groundTruth": None, "trueClasses": []}), 200
+            return jsonify({
+                "images": [],
+                "options": [],
+                "groundTruth": None,
+                "trueClasses": []
+            }), 200
         chosen_class = random.choice(viable)
         imgs = list_images(chosen_class)
         selected = safe_pick_two(imgs)
@@ -233,7 +263,10 @@ def two_image_pair():
             selected = [s for s in [sel1, sel2] if s]
             classes = [class1, class2]
 
-    imgs_info = [{"blobPath": b, "displayUrl": ensure_thumb_and_get_url(b)} for b in selected]
+    imgs_info = [
+        {"blobPath": b, "displayUrl": ensure_thumb_and_get_url(b)}
+        for b in selected
+    ]
     options = ["Same class", "Different class"]
 
     ground_truth = "Same class" if is_same else "Different class"
