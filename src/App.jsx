@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import SingleImagePoolingPage from "./pages/SingleImagePoolingPage";
 import TwoImagePairPage from "./pages/TwoImagePairPage";
+import ThreeImageClassPage from "./pages/ThreeImageClassPage";
 
 console.log({
   Login,
@@ -43,6 +44,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/three"
+              element={
+                <ProtectedRoute>
+                  <ThreeImageClassPage />
+                </ProtectedRoute>
+              }
+            />  
+            
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -21,3 +21,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# 🔐 Sensitive files and secrets
+ctenopool-firebase-adminsdk-fbsvc-fbf85008c1.json
+southern-matter-476413-c8-ccf2c9f722f9.json

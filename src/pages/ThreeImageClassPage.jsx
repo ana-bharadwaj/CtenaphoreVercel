@@ -3,29 +3,29 @@ import { useAuth } from "../auth/AuthProvider";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:5000";
 
-export default function TwoImagePairPage() {
+export default function ThreeImageClassPage() {
   const { user } = useAuth();
   const [images, setImages] = useState([]);
   const [options, setOptions] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // progress state
-  const [totalTarget, setTotalTarget] = useState(20); // start with 20
-  const [completed, setCompleted] = useState(0); // how many submissions this session
+  // progress
+  const [totalTarget, setTotalTarget] = useState(20);
+  const [completed, setCompleted] = useState(0);
   const [phase, setPhase] = useState("running"); // "running" | "offer-more" | "done"
   const progressPct = Math.min(100, Math.round((completed / totalTarget) * 100));
 
-  // correctness tracking
+  // correctness
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
 
-  // guard double-fetch in React StrictMode (dev)
+  // guard double-fetch
   const fetchedRef = useRef(false);
 
-  const fetchPairs = () => {
+  const fetchTriplet = () => {
     setLoading(true);
-    fetch(`${API_BASE}/api/two-image-pair`)
+    fetch(`${API_BASE}/api/three-image-set`)
       .then((res) => res.json())
       .then((data) => {
         setImages(data.images || []);
@@ -40,10 +40,10 @@ export default function TwoImagePairPage() {
     if (phase !== "running") return;
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-    fetchPairs();
+    fetchTriplet();
   }, [phase]);
 
-  // small preloader so next paint feels instant
+  // pre-load images
   useEffect(() => {
     images.forEach((img) => {
       if (!img?.displayUrl) return;
@@ -56,7 +56,6 @@ export default function TwoImagePairPage() {
     const next = completed + 1;
     setCompleted(next);
 
-    // reached current goal?
     if (next >= totalTarget) {
       if (totalTarget === 20) {
         setPhase("offer-more");
@@ -66,22 +65,21 @@ export default function TwoImagePairPage() {
       return;
     }
 
-    // continue
     setSelectedClass(null);
-    fetchPairs();
+    fetchTriplet();
   };
 
   const handleSubmit = () => {
     if (!selectedClass) {
-      alert("Please select an option.");
+      alert("Please select a class.");
       return;
     }
     if (!user) {
       alert("Please sign in before submitting.");
       return;
     }
-    if (images.length !== 2) {
-      alert("Images not loaded properly. Please try again.");
+    if (images.length !== 3) {
+      alert("Images not loaded properly. Please refresh and try again.");
       return;
     }
 
@@ -92,7 +90,7 @@ export default function TwoImagePairPage() {
     };
 
     setLoading(true);
-    fetch(`${API_BASE}/api/submit-pair-label`, {
+    fetch(`${API_BASE}/api/submit-three-label`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -101,7 +99,6 @@ export default function TwoImagePairPage() {
       .then((data) => {
         setLoading(false);
 
-        // update correct/wrong counters
         if (data && typeof data.correct === "boolean") {
           if (data.correct) {
             setCorrectCount((prev) => prev + 1);
@@ -124,7 +121,7 @@ export default function TwoImagePairPage() {
       <ScreenWrap>
         <h1 style={{ textAlign: "center", marginBottom: 8 }}>Great job! 🎉</h1>
         <p style={{ textAlign: "center", marginBottom: 16 }}>
-          You’ve completed <b>{completed}</b> of <b>{totalTarget}</b> pairs.
+          You’ve completed <b>{completed}</b> of <b>{totalTarget}</b> triplets.
         </p>
         <ProgressBar percent={progressPct} completed={completed} total={totalTarget} />
         <p style={{ textAlign: "center", marginTop: 8, color: "#374151" }}>
@@ -143,8 +140,8 @@ export default function TwoImagePairPage() {
             onClick={() => {
               setTotalTarget(30);
               setPhase("running");
-              fetchedRef.current = false; // allow fetch
-              fetchPairs();
+              fetchedRef.current = false;
+              fetchTriplet();
             }}
             style={btnPrimary}
           >
@@ -163,7 +160,7 @@ export default function TwoImagePairPage() {
       <ScreenWrap>
         <h1 style={{ textAlign: "center", marginBottom: 8 }}>Thank you! 🙏</h1>
         <p style={{ textAlign: "center", marginBottom: 16 }}>
-          You completed <b>{completed}</b> of <b>{totalTarget}</b> pairs this session.
+          You completed <b>{completed}</b> of <b>{totalTarget}</b> triplets this session.
         </p>
         <ProgressBar percent={progressPct} completed={completed} total={totalTarget} />
         <p style={{ textAlign: "center", marginTop: 10, color: "#374151" }}>
@@ -186,9 +183,10 @@ export default function TwoImagePairPage() {
         flexDirection: "column",
       }}
     >
-      <div style={{ maxWidth: 980, margin: "0 auto", padding: 24, width: "100%" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: 24, width: "100%" }}>
         <h2 style={{ textAlign: "center", fontWeight: 700, marginBottom: 8 }}>
-          Are these images of the same individual? 
+          All three images are from the same individual. <br />
+          Which individual is it?
         </h2>
         <ProgressBar percent={progressPct} completed={completed} total={totalTarget} />
 
@@ -200,8 +198,9 @@ export default function TwoImagePairPage() {
               style={{
                 display: "flex",
                 justifyContent: "center",
-                gap: 30,
+                gap: 24,
                 margin: "24px 0 28px 0",
+                flexWrap: "wrap",
               }}
             >
               {images.map((img, index) => (
@@ -212,13 +211,13 @@ export default function TwoImagePairPage() {
                   loading={index === 0 ? "eager" : "lazy"}
                   decoding="async"
                   fetchPriority={index === 0 ? "high" : "low"}
-                  width={320}
+                  width={260}
                   height={180}
                   style={{
-                    width: 500,
-                    height: 300,
+                    width: 340,
+                    height: 220,
                     objectFit: "cover",
-                    borderRadius: 24,
+                    borderRadius: 20,
                     border: "2px solid #bbb",
                     background: "#fafbfc",
                     boxShadow: "0 2px 14px rgba(0, 0, 0, 0.08)",
@@ -227,12 +226,19 @@ export default function TwoImagePairPage() {
               ))}
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center", gap: 20 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 16,
+                flexWrap: "wrap",
+              }}
+            >
               {options.map((opt) => (
                 <button
                   key={opt}
                   style={{
-                    padding: "14px 34px",
+                    padding: "12px 26px",
                     backgroundColor: selectedClass === opt ? "#007bff" : "#eee",
                     color: selectedClass === opt ? "white" : "black",
                     fontSize: 18,
@@ -274,7 +280,6 @@ export default function TwoImagePairPage() {
     </div>
   );
 }
-
 
 function ProgressBar({ percent, completed, total }) {
   return (

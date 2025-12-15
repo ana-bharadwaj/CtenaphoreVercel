@@ -20,6 +20,7 @@ function Navbar() {
         <Link to="/">Home</Link>
         <Link to="/single">Single Pooling</Link>
         <Link to="/pair">Two-Image Pair</Link>
+        <Link to="/three">Three-Image Set</Link>
       </nav>
 
       <div>

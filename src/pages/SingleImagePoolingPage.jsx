@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import "../App.css";
 
-const API_BASE = import.meta?.env?.VITE_API_BASE || "http://127.0.0.1:5000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://127.0.0.1:5000";
 
 export default function SingleImagePoolingPage() {
   const CLASS_OPTIONS = ["202502-1", "202502-2", "202502-3", "202502-4"];
@@ -38,7 +38,6 @@ export default function SingleImagePoolingPage() {
         // Always update main
         setMainImage(data.mainImage || null);
 
-        // Only set choices ONCE (lock them) unless explicitly told to refresh
         if (!choicesLocked && lockChoicesIfUnset) {
           setChoiceImages(data.choices || {});
           setChoicesLocked(true);
@@ -140,7 +139,6 @@ export default function SingleImagePoolingPage() {
     }
   };
 
-  // ---------- Phase UIs ----------
 
   if (phase === "offer-more") {
     return (
@@ -193,7 +191,7 @@ export default function SingleImagePoolingPage() {
           style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}
         >
           <h1 className="title" style={{ marginBottom: 8 }}>
-            Thank you! 🙏
+            Thank you! 
           </h1>
           <p style={{ marginBottom: 16 }}>
             You completed <b>{completed}</b> of <b>{totalTarget}</b> images this session.
@@ -210,31 +208,30 @@ export default function SingleImagePoolingPage() {
     );
   }
 
-  // running phase
   return (
     <div className="app">
       <div className="centerContent" style={{ maxWidth: 980, margin: "0 auto" }}>
         {/* Header + progress */}
         <div
-          style={{
-            marginBottom: 16,
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            justifyContent: "center",
-          }}
-        >
-          <h1
-            className="title"
-            style={{ marginBottom: 8, fontWeight: 600, textAlign: "center" }}
-          >
-            Image Categorizer
-          </h1>
-        </div>
-        <ProgressBar percent={progressPct} completed={completed} total={totalTarget} />
+  style={{
+    marginBottom: 16,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    maxWidth: 980,
+  }}
+>
+  <div >
+    <ProgressBar
+      percent={progressPct}
+      completed={completed}
+      total={totalTarget}
+    />
+  </div>
+</div>
 
-        {/* Optional: manual refresh of options */}
-        <div style={{ textAlign: "center", marginBottom: 10 }}>
+        <div style={{ textAlign: "center", marginBottom: 0 }}>
           <small style={{ color: "#6b7280" }}>
             Options are locked for consistency.&nbsp;
             <button
@@ -270,8 +267,8 @@ export default function SingleImagePoolingPage() {
                       loading="eager"
                       decoding="async"
                       fetchPriority="high"
-                      width={640}
-                      height={360}
+                      width={"640px"}
+                      height={"360px"}
                     />
                   ) : (
                     <span>Loading image {card.id}...</span>
@@ -280,7 +277,9 @@ export default function SingleImagePoolingPage() {
               </div>
 
               <div className="rightPane">
-                <h3 className="legend">Which class does the above image belong to?</h3>
+              <h3 className="legend">Which class does the above image belong to?</h3>
+              <div className="choicesColAndActions">
+
                 <div className="choicesCol">
                   {CLASS_OPTIONS.map((label) => {
                     const selected = card.choice === label;
@@ -331,6 +330,7 @@ export default function SingleImagePoolingPage() {
                     </span>
                   )}
                 </div>
+                </div>
               </div>
             </section>
           ))}
@@ -344,38 +344,46 @@ export default function SingleImagePoolingPage() {
 
 function ProgressBar({ percent, completed, total }) {
   return (
-    <div style={{ margin: "0 auto 8px", maxWidth: 520 }}>
-      <div
-        style={{
-          height: 10,
-          borderRadius: 999,
-          background: "#e6e9f2",
-          overflow: "hidden",
-          boxShadow: "inset 0 1px 2px rgba(0,0,0,0.06)",
-        }}
-      >
+    <div
+      style={{
+        margin: "0 auto 8px",
+        maxWidth: 520,
+        display: "flex",
+        justifyContent: "flex-end",   // push everything to the right
+        alignItems: "center",
+        gap: 8,
+      }}
+    >
+      {/* text on the left of the bar */}
+      <span style={{ fontSize: 13, color: "#58607a", whiteSpace: "nowrap" }}>
+        Completed <b>{completed}</b> of <b>{total}</b> ({percent}%)
+      </span>
+
+      {/* bar on the right */}
+      <div style={{ width: 260 }}>
         <div
           style={{
-            width: `${percent}%`,
-            height: "100%",
-            background: "linear-gradient(90deg, #4E5EE4, #7a88f3)",
-            transition: "width 240ms ease",
+            height: 10,
+            borderRadius: 999,
+            background: "#e6e9f2",
+            overflow: "hidden",
+            boxShadow: "inset 0 1px 2px rgba(0,0,0,0.06)",
           }}
-        />
-      </div>
-      <div
-        style={{
-          textAlign: "center",
-          fontSize: 13,
-          color: "#58607a",
-          marginTop: 6,
-        }}
-      >
-        Completed <b>{completed}</b> of <b>{total}</b> ({percent}%)
+        >
+          <div
+            style={{
+              width: `${percent}%`,
+              height: "100%",
+              background: "linear-gradient(90deg, #4E5EE4, #7a88f3)",
+              transition: "width 240ms ease",
+            }}
+          />
+        </div>
       </div>
     </div>
   );
 }
+
 
 const buttonPrimary = {
   padding: "12px 18px",
