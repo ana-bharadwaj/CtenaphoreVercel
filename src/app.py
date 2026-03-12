@@ -7,6 +7,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.api_core.exceptions import Forbidden, BadRequest
 from PIL import Image
+from admin_analytics_api import admin_bp
+
 
 THUMB_SIGNED_TTL = 60 * 60 * 24 * 7  # 7 days
 THUMB_PREFIX = "thumbs-512"
@@ -437,14 +439,31 @@ def three_image_set():
     num_distractors = min(3, len(other_classes))
     distractors = random.sample(other_classes, num_distractors) if num_distractors > 0 else []
 
+    # ---- WITH this ----
+
     options = [true_class] + distractors
     random.shuffle(options)
+
+    selected_set = set(selected)
+    choices = {}
+    for folder in FOLDER_NAMES:
+        clean = folder.replace("-tif", "")
+        candidates = [b for b in list_images(folder) if b not in selected_set]
+        if candidates:
+            ref_blob = random.choice(candidates)
+            choices[clean] = {
+                "blobPath": ref_blob,
+                "displayUrl": get_signed_url_cached(ref_blob),
+            }
 
     return jsonify({
         "images": imgs_info,
         "options": options,
-        "trueClass": true_class  # handy if you want to log/debug
+        "trueClass": true_class,
+        "choices": choices,
     })
+
+
 # ---------- submit three-image label ----------
 
 @app.route("/api/submit-three-label", methods=["POST", "OPTIONS"])
@@ -486,6 +505,7 @@ def submit_three_label():
     })
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
+app.register_blueprint(admin_bp)
 
 
 if __name__ == "__main__":

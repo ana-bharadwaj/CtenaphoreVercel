@@ -18,9 +18,9 @@ function Navbar() {
     }}>
       <nav style={{ display: "flex", gap: 12 }}>
         <Link to="/">Home</Link>
-        <Link to="/single">Single Pooling</Link>
-        <Link to="/pair">Two-Image Pair</Link>
-        <Link to="/three">Three-Image Set</Link>
+        <Link to="/pair">Same/different</Link>
+        <Link to="/single">One shot identification</Link>
+        <Link to="/three">More context</Link>
       </nav>
 
       <div>
