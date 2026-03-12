@@ -208,7 +208,7 @@ export default function TwoImagePairPage() {
                 <img
                   key={index}
                   src={img.displayUrl}
-                  alt={`Image ${index + 1}`}
+                  alt={`View ${index + 1}`}
                   loading={index === 0 ? "eager" : "lazy"}
                   decoding="async"
                   fetchPriority={index === 0 ? "high" : "low"}
