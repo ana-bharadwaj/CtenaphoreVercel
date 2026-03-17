@@ -504,7 +504,6 @@ def submit_three_label():
     })
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
-app.register_blueprint(admin_bp)
 
 
 if __name__ == "__main__":
