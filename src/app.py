@@ -7,7 +7,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.api_core.exceptions import Forbidden, BadRequest
 from PIL import Image
-from admin_analytics_api import admin_bp
+
 
 
 THUMB_SIGNED_TTL = 60 * 60 * 24 * 7  # 7 days
@@ -104,8 +104,8 @@ def ensure_thumb_and_get_url(original_blob_name: str) -> str:
 
 CACHE_DURATION = 300
 cache_lock = threading.Lock()
-cached_files = {}      # { folder -> [blob_names] }
-cached_by_date = {}    # { '20250305' -> [blob_names] }
+cached_files = {}     
+cached_by_date = {}   
 last_cache_time = 0
 
 DATE_RE = re.compile(r"(\d{8})-")
@@ -321,7 +321,6 @@ def submit_single_label():
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response, 200
 
-# ---------- submit pair label ----------
 
 @app.route("/api/submit-pair-label", methods=["POST", "OPTIONS"])
 def submit_pair_label():
